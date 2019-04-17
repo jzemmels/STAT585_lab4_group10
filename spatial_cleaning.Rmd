@@ -19,7 +19,15 @@ liquor <- liquor %>%
   mutate(lat = str_extract(lat, "[0-9\\.-]{1,}"),
          lon = str_extract(lon, "[0-9\\.-]{1,}")) %>%
   mutate(lat = as.numeric(lat),
-         lon = as.numeric(lon))
+         lon = as.numeric(lon),
+         `Category Name` = str_to_lower(`Category Name`, locale = "en"),
+         category.type = case_when(
+           str_detect(`Category Name`, "whisk") ~ "whiskey",
+           str_detect(`Category Name`, "vodka") ~ "vodka",
+           str_detect(`Category Name`, "rum") ~ "rum",
+           str_detect(`Category Name`, "brand") ~ "brandy",
+           TRUE ~ "other"
+         ))
 ```
 
 County had both "Story" and "STORY"
@@ -34,9 +42,6 @@ county <- map("county","iowa.story")
 ```
 
 ```{r}
-liquor %>%
-  ggplot(aes(x = lon, y = lat))+
-  geom_point()
 
 
 ```
