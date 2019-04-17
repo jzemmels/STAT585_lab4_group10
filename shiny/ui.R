@@ -1,4 +1,5 @@
 library(shiny)
+library(plotly)
 
 shinyUI(fluidPage(title="Stat 585 Lab 4 Group 10",
                   tabsetPanel(
@@ -16,6 +17,25 @@ shinyUI(fluidPage(title="Stat 585 Lab 4 Group 10",
                                mainPanel(
                                  plotOutput("distPlot")
                                )
+<<<<<<< HEAD
+                             )
+                    ),
+                    tabPanel("Spatial Visualization",
+                             sidebarPanel(
+                               sliderInput("bins",
+                                           "Number of bins:",
+                                           min = 1,
+                                           max = 50,
+                                           value = 30)
+                             ),
+                             mainPanel(
+                               plotlyOutput(outputId="map")
+                             )
+                    )
+                  )
+)
+)
+=======
                              )),
                     tabPanel("Spatial Visualization",
                              sidbarLayout(
@@ -24,6 +44,7 @@ shinyUI(fluidPage(title="Stat 585 Lab 4 Group 10",
                                )
                              ))
                   )))
+>>>>>>> 9480490bb4369fcd9ace3b08c1b749ec4e6ebe0b
 
 # Define UI for application that draws a histogram
 # ui <- fluidPage(

@@ -1,4 +1,9 @@
 library(shiny)
+library(tidyverse)
+library(plotly)
+
+county <- read_csv("../data/storyCountyMap.csv")
+
 
 server <- function(input, output) {
   
@@ -9,5 +14,15 @@ server <- function(input, output) {
     
     # draw the histogram with the specified number of bins
     hist(x, breaks = bins, col = 'darkgray', border = 'white')
+  })
+  
+  output$map <- renderPlotly({
+    plt <- county %>%
+      ggplot(aes(x=long,y=lat)) +
+      geom_path() +
+      theme_bw()
+    
+    plt <- ggplotly(plt)
+    return(plt)
   })
 }
