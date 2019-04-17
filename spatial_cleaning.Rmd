@@ -5,11 +5,8 @@ output: html_notebook
 
 ```{r}
 library(tidyverse)
-<<<<<<< HEAD
 library(maps)
-=======
 
->>>>>>> 9480490bb4369fcd9ace3b08c1b749ec4e6ebe0b
 liquor <- read_csv("data/story-sales/Iowa_Liquor_Sales-Story.csv")
 ```
 
@@ -38,19 +35,15 @@ county <- map("county","iowa.story")
 ```
 
 ```{r}
-<<<<<<< HEAD
-countyMap <- data.frame(lat=county$x,long=county$y) %>% na.omit()
+countyMap <- data.frame(lat=county$y,long=county$x) %>% na.omit()
 write_csv(countyMap,path = "data/storyCountyMap.csv",col_names = TRUE)
 countyMap %>%
   na.omit() %>%
-  ggplot(aes(x=lat,y=long)) +
+  ggplot(aes(x=long,y=lat)) +
   geom_path()
-=======
+
 liquor %>%
   ggplot(aes(x = lon, y = lat))+
   geom_point()
-
-
->>>>>>> 9480490bb4369fcd9ace3b08c1b749ec4e6ebe0b
 ```
 
