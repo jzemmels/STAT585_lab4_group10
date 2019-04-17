@@ -17,7 +17,9 @@ liquor <- liquor %>%
          lat = str_extract(coord.data, "\\(.*,"),
          lon = str_extract(coord.data, ",.*\\)")) %>%
   mutate(lat = str_extract(lat, "[0-9\\.-]{1,}"),
-         lon = str_extract(lon, "[0-9\\.-]{1}"))
+         lon = str_extract(lon, "[0-9\\.-]{1,}")) %>%
+  mutate(lat = as.numeric(lat),
+         lon = as.numeric(lon))
 ```
 
 County had both "Story" and "STORY"
@@ -32,6 +34,10 @@ county <- map("county","iowa.story")
 ```
 
 ```{r}
+liquor %>%
+  ggplot(aes(x = lon, y = lat))+
+  geom_point()
+
 
 ```
 
