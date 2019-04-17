@@ -1,0 +1,36 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+liquor <- read_csv("data/story-sales/Iowa_Liquor_Sales-Story.csv")
+```
+
+Separate the lat/long data:
+
+```{r}
+small.df <- small.df %>%
+  mutate(coord.data = str_extract(Store.Location, "\\(.*\\)"),
+         lat = str_extract(coord.data, "\\(.*,"),
+         lon = str_extract(coord.data, ",.*\\)")) %>%
+  mutate(lat = str_extract(lat, "[0-9\\.-]{1,}"),
+         lon = str_extract(lon, "[0-9\\.-]{1}"))
+```
+
+County had both "Story" and "STORY"
+```{r}
+liquor <- liquor %>%
+  mutate(county = "Story")
+```
+
+Story county map so that we can plot the lat/long of all of Story county.
+```{r}
+county <- map("county","iowa.story")
+```
+
+```{r}
+
+```
+
