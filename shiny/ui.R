@@ -17,7 +17,12 @@ shinyUI(fluidPage(title="Stat 585 Lab 4 Group 10",
                                  plotOutput("distPlot")
                                )
                              )),
-                    tabPanel("Spatial Visualization")
+                    tabPanel("Spatial Visualization",
+                             sidbarLayout(
+                               sidebarPanel(
+                                 
+                               )
+                             ))
                   )))
 
 # Define UI for application that draws a histogram
