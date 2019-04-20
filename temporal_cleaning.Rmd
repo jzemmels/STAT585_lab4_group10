@@ -49,6 +49,7 @@ liquor$Date=as.character(liquor$Date)
 liquor$Date %>% mdy() %>% year() %>% table()
 
 # create new temporal variables
+liquor$Date=liquor$Date %>% mdy
 liquor$week=liquor$Date %>% mdy() %>% wday() %>% factor()
 levels(liquor$week)= c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday")
 liquor$month=liquor$Date %>% mdy() %>% month()
