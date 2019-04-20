@@ -22,7 +22,7 @@ server <- function(input, output) {
                   choices = list("Absolut",
                                  "Bacardi",
                                  "Captain Morgan",
-                                 "Crown Royal",
+                                 # "Crown Royal",
                                  "Fireball",
                                  "Hennessy",
                                  "Jack Daniels",
@@ -40,6 +40,7 @@ server <- function(input, output) {
                                  "UV"),
                   selected = "Absolut"
       )
+      # spatialPlotHeight <<- length(input$brand)
     }
     else{
       selectInput(inputId = "type", label = "Drink Type", multiple = TRUE,
@@ -47,7 +48,9 @@ server <- function(input, output) {
                                  "vodka",
                                  "brandy",
                                  "rum",
-                                 "other"), selected = "whiskey")
+                                 "other"), 
+                  selected = "whiskey")
+      # spatialPlotHeight <<- length(input$type)
     }
     
   })
@@ -63,8 +66,9 @@ server <- function(input, output) {
         geom_path() +
         theme_bw() + 
         geom_point(data = filter(liquor_brandCounts,brand %in% input$brand),
-                   aes(x=lon,y=lat,size=count,colour=brand))
-      plt <- ggplotly(plt)
+                   aes(x=lon,y=lat,size=count,colour=count)) +
+        facet_wrap(~brand,ncol=1)
+      plt <- ggplotly(plt,height=350*length(input$brand))
       return(plt)
     }      
     if(input$analysis=="type"){
@@ -78,8 +82,10 @@ server <- function(input, output) {
         geom_path() +
         theme_bw() + 
         geom_point(data = filter(liquor_typeCounts, type %in% input$type),
-                   aes(x=lon,y=lat,size=count,colour=type))
-      plt <- ggplotly(plt)
+                   aes(x=lon,y=lat,size=count,colour=count)) +
+        facet_wrap(~type,ncol=1)
+      
+      plt <- ggplotly(plt,height=350*length(input$type))
       return(plt)
     }
   })

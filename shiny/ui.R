@@ -19,7 +19,7 @@ shinyUI(fluidPage(title="Stat 585 Lab 4 Group 10",
                                )
                              )
                     ),
-                    tabPanel("Spatial Visualization-Brand",
+                    tabPanel("Map of Story County Liquor Sales",
                              fluidPage(
                                sidebarPanel(
                                  selectInput(inputId = "analysis", "Pick Type of Analysis",
@@ -29,7 +29,7 @@ shinyUI(fluidPage(title="Stat 585 Lab 4 Group 10",
                                  
                                ),
                                mainPanel(
-                                 plotlyOutput(outputId="map")
+                                 plotlyOutput(outputId="map",height=700)
                                  
                                )
                              )
