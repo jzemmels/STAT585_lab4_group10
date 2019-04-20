@@ -20,32 +20,19 @@ shinyUI(fluidPage(title="Stat 585 Lab 4 Group 10",
                                          plotlyOutput(outputId="temporalPlot")
                                        )
                     ),
-                    tabPanel("Spatial Visualization",
-                             sidebarPanel(
-                               selectInput(inputId = "brand",label = "Brand", multiple = TRUE,
-                                                  choices = list("Absolut",
-                                                                "Bacardi",
-                                                                "Captain Morgan",
-                                                                "Crown Royal",
-                                                                "Fireball",
-                                                                "Hennessy",
-                                                                "Jack Daniels",
-                                                                "Jagermeister",
-                                                                "Jameson",
-                                                                "Kahlua",
-                                                                "Malibu",
-                                                                "Paramount",
-                                                                "Rumchata",
-                                                                "Smirnoff",
-                                                                "Southern Comfort",
-                                                                "Svedka",
-                                                                "Tanqueray",
-                                                                "Titos",
-                                                                "UV")
+                    tabPanel("Map of Story County Liquor Sales",
+                             fluidPage(
+                               sidebarPanel(
+                                 selectInput(inputId = "analysis", "Pick Type of Analysis",
+                                             c("Brand"= "brand", "Type" = "type")),
+                                 uiOutput("aspect")
+                                 
+                                 
+                               ),
+                               mainPanel(
+                                 plotlyOutput(outputId="map",height=700)
+                                 
                                )
-                             ),
-                             mainPanel(
-                               plotlyOutput(outputId="map")
                              )
                     )
                   )
