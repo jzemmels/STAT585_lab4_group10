@@ -19,32 +19,19 @@ shinyUI(fluidPage(title="Stat 585 Lab 4 Group 10",
                                )
                              )
                     ),
-                    tabPanel("Spatial Visualization",
-                             sidebarPanel(
-                               selectInput(inputId = "brand",label = "Brand", multiple = TRUE,
-                                                  choices = list("Absolut",
-                                                                "Bacardi",
-                                                                "Captain Morgan",
-                                                                "Crown Royal",
-                                                                "Fireball",
-                                                                "Hennessy",
-                                                                "Jack Daniels",
-                                                                "Jagermeister",
-                                                                "Jameson",
-                                                                "Kahlua",
-                                                                "Malibu",
-                                                                "Paramount",
-                                                                "Rumchata",
-                                                                "Smirnoff",
-                                                                "Southern Comfort",
-                                                                "Svedka",
-                                                                "Tanqueray",
-                                                                "Titos",
-                                                                "UV")
+                    tabPanel("Spatial Visualization-Brand",
+                             fluidPage(
+                               sidebarPanel(
+                                 selectInput(inputId = "analysis", "Pick Type of Analysis",
+                                             c("Brand"= "brand", "Type" = "type")),
+                                 uiOutput("aspect")
+                                 
+                                 
+                               ),
+                               mainPanel(
+                                 plotlyOutput(outputId="map")
+                                 
                                )
-                             ),
-                             mainPanel(
-                               plotlyOutput(outputId="map")
                              )
                     )
                   )
