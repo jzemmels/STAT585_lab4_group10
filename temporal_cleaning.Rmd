@@ -57,13 +57,19 @@ liquor$year=liquor$Date %>% mdy() %>% year()
 
 ```
 
+Check interested response variable
+
+```{r}
+liquor$Bottles.Sold %>% summary
+liquor$Sale..Dollars. %>% summary
+```
+
 We decided to drop a lot of the columns to reduce the dataset. We may choose to pick some back up at a later date, but this should help with the size of the data.
 
 ```{r}
 liquor_clean <- liquor %>%
   select(-c(`Invoice.Item.Number`,`Store.Number`,Address,`Zip.Code`,`Store.Location`,`County.Number`,County,`Vendor.Number`,`Item.Number`))
-dim(liquor_clean)
-names(liquor_clean)
+class(liquor_clean)
 write_csv(liquor_clean,"data/liquor_cleanForTemporal.csv",col_names = TRUE)
 ```
 
