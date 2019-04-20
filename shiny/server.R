@@ -68,7 +68,7 @@ server <- function(input, output) {
         geom_point(data = filter(liquor_brandCounts,brand %in% input$brand),
                    aes(x=lon,y=lat,size=count,colour=count)) +
         facet_wrap(~brand,ncol=1)
-      plt <- ggplotly(plt,height=350*length(input$brand))
+      plt <- ggplotly(plt,height=500*length(input$brand))
       return(plt)
     }      
     if(input$analysis=="type"){
@@ -85,7 +85,7 @@ server <- function(input, output) {
                    aes(x=lon,y=lat,size=count,colour=count)) +
         facet_wrap(~type,ncol=1)
       
-      plt <- ggplotly(plt,height=350*length(input$type))
+      plt <- ggplotly(plt,height=500*length(input$type))
       return(plt)
     }
   })
