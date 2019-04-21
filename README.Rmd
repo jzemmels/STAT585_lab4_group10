@@ -4,4 +4,265 @@ output: github_document
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-https://github.com/jzemmels/STAT585_lab4_group10
+# API and Github
+
+Here is a link to the github repo[https://github.com/jzemmels/STAT585_lab4_group10]
+
+Next we have inlcuded code that could take data from the API thanks to Stephanie!
+
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lubridate)
+library(rvest)
+library(jsonlite)
+library(maps)
+library(shiny)
+```
+
+
+```{r api-data}
+# Read the API Data
+url <- "https://data.iowa.gov/resource/m3tr-qhgy.json?county=Story"
+d <- jsonlite::fromJSON(url)
+```
+
+```{r naming-convention}
+# Change column names to match Iowa_Liquor_Sales-Story.csv
+
+names(d)[names(d) == 'invoice_line_no'] <- 'Invoice.Item.Number'
+names(d)[names(d) == 'name'] <- 'Store.Name'
+names(d)[names(d) == 'zipcode'] <- 'Zip.Code'
+names(d)[names(d) == 'county'] <- 'County'
+names(d)[names(d) == 'vendor_no'] <- 'Vendor.Number'
+names(d)[names(d) == 'vendor_name'] <- 'Vendor.Name'
+names(d)[names(d) == 'state_bottle_cost'] <- 'State.Bottle.Cost'
+names(d)[names(d) == 'sale_dollars'] <- 'Sale..Dolars.'
+names(d)[names(d) == 'date'] <- 'Date'
+names(d)[names(d) == 'address'] <- 'Address'
+names(d)[names(d) == 'category'] <- 'Category'
+names(d)[names(d) == 'im_desc'] <- 'Item.Description'
+names(d)[names(d) == 'pack'] <- 'Pack'
+names(d)[names(d) == 'state_bottle_retail'] <- 'State.Bottle.Retail'
+names(d)[names(d) == 'state_bottle_retail'] <- 'Volume.Sold..Liters.'
+names(d)[names(d) == 'store'] <- 'Store.Number'
+names(d)[names(d) == 'store_location_city'] <- 'City'
+names(d)[names(d) == 'county_number'] <- 'County.Number'
+names(d)[names(d) == 'category_name'] <- 'Category.Name'
+names(d)[names(d) == 'itemno'] <- 'Item.Number'
+names(d)[names(d) == 'bottle_volume_ml'] <- 'Bottle.Volume..ml.'
+names(d)[names(d) == 'store'] <- 'Store.Number'
+names(d)[names(d) == 'sale_gallons'] <- 'Volume.Sold..Gallons.'
+names(d)[names(d) == 'sale_bottles'] <- 'Bottles.Sold'
+names(d)[names(d) == 'sale_liters'] <- 'Volume.Sold..Liters.'
+
+```
+
+```{r format-api}
+# Create and format Store.Location variable to match Iowa_Liquor_Sales-Story.csv
+dflat <- flatten(flatten(d))
+store_location_lat <- as.numeric(unlist(as.character(purrr::map(dflat$store_location.coordinates, function(d) d[[1]]))))
+
+store_location_long <- as.numeric(unlist(as.character(purrr::map(dflat$store_location.coordinates, function(d) d[[2]]))))
+
+d <- cbind(d, store_location_lat, store_location_long)
+
+d <- d %>% mutate(city.zip = paste(city,Zip.Code),
+             lat.lon = paste0("(",store_location_lat,', ',store_location_long,")"),
+             Store.Location = factor(paste(Address,city.zip,lat.lon,sep="\n")))
+```
+
+```{r api-reorder}
+
+# Reorder columns to match Iowa_Liquor_Sales-Story.csv
+d <- d %>% select(Invoice.Item.Number,
+             Date,
+             Store.Number,
+             Store.Name,
+             Address,
+             City,
+             Zip.Code,
+             Store.Location,
+             County.Number,
+             County,
+             Category,
+             Category.Name,
+             Vendor.Number,
+             Vendor.Name,
+             Item.Number,
+             Item.Description,
+             Pack,
+             Bottle.Volume..ml.,
+             State.Bottle.Cost,
+             State.Bottle.Retail,
+             Bottles.Sold,
+             Sale..Dolars.,
+             Volume.Sold..Liters.,
+             Volume.Sold..Gallons.)
+
+```
+
+
+```{r api-change-class}
+
+# Change variable classes to match Iowa_Liquor_Sales-Story.csv
+d <- d %>% mutate(Invoice.Item.Number = factor(Invoice.Item.Number),
+             Date = factor(Date),
+             Store.Number = as.integer(Store.Number),
+             Store.Name = factor(Store.Name),
+             Address = factor(Address),
+             City = factor(City),
+             Zip.Code = as.integer(Zip.Code),
+             County.Number = as.integer(County.Number),
+             County = factor(County),
+             Category = as.integer(Category),
+             Category.Name = factor(Category.Name),
+             Vendor.Number = as.integer(Vendor.Number),
+             Item.Number = as.integer(Item.Number),
+             Pack = as.integer(Pack),
+             Bottle.Volume..ml. = as.integer(Bottle.Volume..ml.),
+             State.Bottle.Cost = as.double(State.Bottle.Cost),
+             State.Bottle.Retail = as.double(State.Bottle.Retail),
+             Bottles.Sold = as.integer(Bottles.Sold),
+             Sale..Dolars. = as.double(Sale..Dolars.),
+             Volume.Sold..Liters. = as.double(Volume.Sold..Liters.),
+             Volume.Sold..Gallons. = as.double(Volume.Sold..Gallons.))
+```
+
+```{r save-api}
+# Save data to data folder
+# write.csv(d,'data/Iowa_Liquor_Sales-Story_1000.csv')
+```
+
+# Spatial Cleaning
+
+First we read in our data provided from the lab assignment. This portion of code
+was created by Joe and Charlotte. 
+
+```{r read-dat}
+# Read in prepared data
+liquor <- read_csv("data/story-sales/Iowa_Liquor_Sales-Story.csv")
+```
+
+Separate the lat/long data and make a new column for type of liquor (Charlotte). 
+There were many different names for different types of alcohol so we simplified
+this category down to five different entries. 
+
+```{r lat-lon}
+# Extract location data and find type of alcohol 
+liquor <- liquor %>%
+  mutate(coord.data = str_extract(`Store Location`, "\\(.*\\)"),
+         lat = str_extract(coord.data, "\\(.*,"),
+         lon = str_extract(coord.data, ",.*\\)")) %>%
+  mutate(lat = str_extract(lat, "[0-9\\.-]{1,}"),
+         lon = str_extract(lon, "[0-9\\.-]{1,}")) %>%
+  mutate(lat = as.numeric(lat),
+         lon = as.numeric(lon),
+         `Category Name` = str_to_lower(`Category Name`, locale = "en"),
+         category.type = case_when(
+           str_detect(`Category Name`, "whisk") ~ "whiskey",
+           str_detect(`Category Name`, "vodka") ~ "vodka",
+           str_detect(`Category Name`, "rum") ~ "rum",
+           str_detect(`Category Name`, "brand") ~ "brandy",
+           TRUE ~ "other"
+         ))
+```
+
+We also would like to visualize sales by brand of liquor (Joe). There were too many individual brands, so we settled on a handful of recognizable names and grouped the rest.
+
+```{r liquor-brand}
+liquor <- liquor %>%
+  mutate(brand = case_when(
+    str_detect(`Item Description`,"[Bb]acardi") ~ "Bacardi",
+    str_detect(`Item Description`,"[Aa]bsolut") ~ "Absolut",
+    str_detect(`Item Description`,"[Ss]mirnoff") ~ "Smirnoff",
+    str_detect(`Item Description`,"[Ss]vedka") ~ "Svedka",
+    str_detect(`Item Description`,"[Jj]ameson") ~ "Jameson",
+    str_detect(`Item Description`,"[Cc]aptain [Mm]organ") ~ "Captain Morgan",
+    str_detect(`Item Description`,"[Tt]anqueray") ~ "Tanqueray",
+    str_detect(`Item Description`,"[Rr]umchata") ~ "Rumchata",
+    str_detect(`Item Description`,"[Hh]ennessy") ~ "Hennessy",
+    str_detect(`Item Description`,"U[Vv]") ~ "UV",
+    str_detect(`Item Description`,"[Jj]ameson") ~ "Jameson",
+    str_detect(`Item Description`,"[Jj]ack [Dd]aniels") ~ "Jack Daniels",
+    str_detect(`Item Description`,"[Mm]alibu") ~ "Malibu",
+    str_detect(`Item Description`,"[Ss]outhern [Cc]omfort") ~ "Southern Comfort",
+    str_detect(`Item Description`,"[Tt]itos") ~ "Titos",
+    str_detect(`Item Description`,"[Ff]ireball") ~ "Fireball",
+    str_detect(`Item Description`,"[Jj]agermeister") ~ "Jagermeister",
+    str_detect(`Item Description`,"[Pp]aramount") ~ "Paramount",
+    str_detect(`Item Description`,"[Pp]hillips") ~ "Phillips",
+    str_detect(`Item Description`,"[Ss]eagrams") ~ "Seagrams",
+    TRUE ~ "Other"
+  ))
+```
+
+County had both "Story" and "STORY" so we standardize below
+
+```{r standard-county}
+# Standardize county name
+liquor <- liquor %>%
+  mutate(county = "Story")
+```
+
+Story county map so that we can plot the lat/long of all of Story county.
+
+```{r make-map}
+county <- map("county","iowa.story")
+```
+
+
+We decided to drop a lot of the columns to reduce the dataset. We may choose to pick some back up at a later date, but this should help with the size of the data.
+
+```{r clean-spatial}
+# Remove extraneous columns
+liquor_clean <- liquor %>%
+  select(-c(`Invoice/Item Number`,`Store Number`,Address,`Zip Code`,`Store Location`,`County Number`,County,`Category Name`,`Vendor Number`,`Item Number`,coord.data,Category,`Item Description`,`Volume Sold (Gallons)`,`Volume Sold (Liters)`,`Sale (Dollars)`,`Bottles Sold`,`State Bottle Retail`,`State Bottle Cost`,`Bottle Volume (ml)`,Pack))
+
+# write_csv(liquor_clean,"data/liquor_cleanForSpatial.csv",col_names = TRUE)
+```
+
+
+# Temporal Cleaning
+
+This portion of code was created by Yuchen and Hao. In order to analysis the dataset in temporal aspect, we transformed `Date` variable into week (Monday, Tuesday, ...), month, quarter, and year four new variables.
+
+```{r change-date}
+# Transform date to character string
+
+liquor$Date=as.character(liquor$Date)
+
+# Summary
+
+liquor$Date %>% mdy() %>% year() %>% table()
+
+# Create new temporal variables
+
+liquor$Date=liquor$Date %>% mdy
+liquor$week=liquor$Date %>% wday() %>% factor()
+levels(liquor$week)= c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday")
+liquor$month=liquor$Date %>% month()
+liquor$quarter=liquor$Date %>% quarter()
+liquor$year=liquor$Date %>% year()
+
+```
+
+Check interested response variable
+
+```{r summarise-vars}
+liquor$Bottles.Sold %>% summary
+liquor$Sale..Dollars. %>% summary
+```
+
+We decided to drop a lot of the columns to reduce the dataset. We may choose to pick some back up at a later date, but this should help with the size of the data.
+
+```{r clena-temporal}
+# Create new data frame with only relevant variables
+liquor_clean <- liquor %>%
+  select(c(Date, `Bottles Sold`, `Sale (Dollars)`,brand,week,month,quarter,year))
+class(liquor_clean)
+
+# Write to csv
+# write_csv(liquor_clean,"data/liquor_cleanForTemporal.csv",col_names = TRUE)
+```
+
+Please see our github to run the app...

@@ -1,0 +1,76 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Read raw data directly from .zip file 
+
+```{r}
+library(tidyverse)
+
+liquor <- read.csv(unz("Data/story-sales.zip", "Iowa_Liquor_Sales-Story.csv"))
+```
+
+We (Yuchen & Hao) utilized Joe and charlotte's code to create new variable brand
+```{r}
+liquor <- liquor %>%
+  mutate(brand = case_when(
+    str_detect(`Item.Description`,"[Bb]acardi") ~ "Bacardi",
+    str_detect(`Item.Description`,"[Aa]bsolut") ~ "Absolut",
+    str_detect(`Item.Description`,"[Ss]mirnoff") ~ "Smirnoff",
+    str_detect(`Item.Description`,"[Ss]vedka") ~ "Svedka",
+    str_detect(`Item.Description`,"[Jj]ameson") ~ "Jameson",
+    str_detect(`Item.Description`,"[Cc]aptain [Mm]organ") ~ "Captain Morgan",
+    str_detect(`Item.Description`,"[Tt]anqueray") ~ "Tanqueray",
+    str_detect(`Item.Description`,"[Rr]umchata") ~ "Rumchata",
+    str_detect(`Item.Description`,"[Hh]ennessy") ~ "Hennessy",
+    str_detect(`Item.Description`,"U[Vv]") ~ "UV",
+    str_detect(`Item.Description`,"[Jj]ameson") ~ "Jameson",
+    str_detect(`Item.Description`,"[Jj]ack [Dd]aniels") ~ "Jack Daniels",
+    str_detect(`Item.Description`,"[Mm]alibu") ~ "Malibu",
+    str_detect(`Item.Description`,"[Ss]outhern [Cc]omfort") ~ "Southern Comfort",
+    str_detect(`Item.Description`,"[Tt]itos") ~ "Titos",
+    str_detect(`Item.Description`,"[Ff]ireball") ~ "Fireball",
+    str_detect(`Item.Description`,"[Jj]agermeister") ~ "Jagermeister",
+    str_detect(`Item.Description`,"[Pp]aramount") ~ "Paramount",
+    str_detect(`Item.Description`,"[Pp]hillips") ~ "Phillips",
+    str_detect(`Item.Description`,"[Ss]eagrams") ~ "Seagrams",
+    TRUE ~ "Other"
+  ))
+
+```
+
+In order to analysis the dataset in temporal aspect, we transformed `Date` variable into week (Monday, Tuesday, ...), month, quarter, and year four new variables.
+```{r}
+library(lubridate)
+liquor$Date=as.character(liquor$Date)
+
+# summary
+liquor$Date %>% mdy() %>% year() %>% table()
+
+# create new temporal variables
+liquor$Date=liquor$Date %>% mdy
+liquor$week=liquor$Date %>% wday() %>% factor()
+levels(liquor$week)= c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday")
+liquor$month=liquor$Date %>% month()
+liquor$quarter=liquor$Date %>% quarter()
+liquor$year=liquor$Date %>% year()
+
+```
+
+Check interested response variable
+
+```{r}
+liquor$Bottles.Sold %>% summary
+liquor$Sale..Dollars. %>% summary
+```
+
+We decided to drop a lot of the columns to reduce the dataset. We may choose to pick some back up at a later date, but this should help with the size of the data.
+
+```{r}
+liquor_clean <- liquor %>%
+  select(c(Date,Bottles.Sold,Sale..Dollars.,brand,week,month,quarter,year))
+class(liquor_clean)
+write_csv(liquor_clean,"data/liquor_cleanForTemporal.csv",col_names = TRUE)
+```
+
