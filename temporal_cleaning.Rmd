@@ -50,11 +50,11 @@ liquor$Date %>% mdy() %>% year() %>% table()
 
 # create new temporal variables
 liquor$Date=liquor$Date %>% mdy
-liquor$week=liquor$Date %>% mdy() %>% wday() %>% factor()
+liquor$week=liquor$Date %>% wday() %>% factor()
 levels(liquor$week)= c("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday")
-liquor$month=liquor$Date %>% mdy() %>% month()
-liquor$quarter=liquor$Date %>% mdy() %>% quarter()
-liquor$year=liquor$Date %>% mdy() %>% year()
+liquor$month=liquor$Date %>% month()
+liquor$quarter=liquor$Date %>% quarter()
+liquor$year=liquor$Date %>% year()
 
 ```
 
@@ -69,7 +69,7 @@ We decided to drop a lot of the columns to reduce the dataset. We may choose to 
 
 ```{r}
 liquor_clean <- liquor %>%
-  select(-c(`Invoice.Item.Number`,`Store.Number`,Address,`Zip.Code`,`Store.Location`,`County.Number`,County,`Vendor.Number`,`Item.Number`))
+  select(c(Date,Bottles.Sold,Sale..Dollars.,brand,week,month,quarter,year))
 class(liquor_clean)
 write_csv(liquor_clean,"data/liquor_cleanForTemporal.csv",col_names = TRUE)
 ```

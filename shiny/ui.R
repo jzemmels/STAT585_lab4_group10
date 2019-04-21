@@ -3,22 +3,19 @@ library(plotly)
 
 shinyUI(fluidPage(title="Stat 585 Lab 4 Group 10",
                   tabsetPanel(
-                    tabPanel("Temporal Visualization",
+                    tabPanel("Temporal Aspect Visualization",
+                             fluidPage(
                                        sidebarPanel(
-                                         selectInput(inputId = "unit_of_time",label = "Unit of Time", multiple = FALSE,
-                                                     choices = list("week",
-                                                                    "month",
-                                                                    "quarter",
-                                                                    "year")
-                                         ),
                                          selectInput(inputId = "responseVar",label = "Response Variable", multiple = FALSE,
                                                      choices = list("Sale..Dollars.",
                                                                     "Bottles.Sold")
-                                         )
+                                         ),
+                                         uiOutput("Unit")
                                        ),
                                        mainPanel(
-                                         plotlyOutput(outputId="temporalPlot")
+                                         plotlyOutput(outputId="temporalPlot", height = 1000)
                                        )
+                             )
                     ),
                     tabPanel("Map of Story County Liquor Sales",
                              fluidPage(
